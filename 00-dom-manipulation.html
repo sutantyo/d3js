@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>D3js</title>
+    <link href="css/materialize.min.css" rel="stylesheet">
+    <script src="js/materialize.min.js"></script>
+    <script src="js/d3.min.js"></script>
+    <!-- code highlighting -->
+    <link href="css/default.css" rel="stylesheet">
+    <script src="js/highlight.pack.js"></script>
+    <script> hljs.initHighlightingOnLoad();</script>
+  </head>
+
+  <body>
+
+    <section>
+      <header class="container">
+          <h3>DOM manipulation</h3>
+      </header>
+    </section>
+
+    <!-- section used to display errors -->
+    <section style='display:none;' id='error-list'>
+      <div class='card-panel red lighten-4 grey-text'>
+        <ul>
+        <li><h5 class='red-text text-darken-3'>Errors:</h5>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="container" id='main-text'>
+      </div>
+    </section>
+  </body>
+
+  <section>
+    <div class="container">
+    <pre><code class="javascript">
+  let node = d3.select('#main-text').append('ul')
+  for (let i = 0; i < 20; i++){
+    node.append('li')
+      .html('the quick brown fox jumps over the lazy dog')
+      .style('font-size',16+i+'px')
+      .style('color',d3.rgb(0+12*i,0+6*i,0+8*i))
+      .attr('class','colourful-li')
+  }
+  d3.selectAll('li.colourful-li')
+      .style('font-family','Helvetica')
+    </code></pre>
+    </div>
+  </section>
+
+
+
+  <script type='text/javascript'>
+      let node = d3.select('#main-text').append('ul')
+      for (let i = 0; i < 20; i++){
+        node.append('li')
+          .html('the quick brown fox jumps over the lazy dog')
+          .style('font-size',16+i+'px')
+          .style('color',d3.rgb(0+12*i,0+6*i,0+8*i))
+          .attr('class','colourful-li')
+      }
+      d3.selectAll('li.colourful-li')
+          .style('font-family','Helvetica')
+  </script>
+</html>
