@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>D3js</title>
+    <link href="css/materialize.min.css" rel="stylesheet">
+    <script src="js/materialize.min.js"></script>
+    <script src="js/d3.min.js"></script>
+    <!-- code highlighting -->
+    <link href="css/darcula.css" rel="stylesheet">
+    <script src="js/highlight.pack.js"></script>
+    <script> hljs.initHighlightingOnLoad();</script>
+  </head>
+
+  <body>
+
+    <section>
+      <header class="container">
+          <h3>Basic circle</h3>
+      </header>
+      <div class="container"
+        <p>
+          Basic circle shapes with labels.
+        </p>
+      </div>
+    </section>
+
+    <!-- section used to display errors -->
+    <section style='display:none;' id='error-list'>
+      <div class='card-panel red lighten-4 grey-text'>
+        <ul>
+        <li><h5 class='red-text text-darken-3'>Errors:</h5>
+        </ul>
+      </div>
+    </section>
+
+    <!-- main section to show D3.js reults -->
+    <section>
+      <div class="container" id='main-text'>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+      <pre><code class="javascript">
+  let dataset = [ [100 , 330, 500],
+                  [150 , 310, 600],
+                  [200 , 250, 1000],
+                  [250 , 220, 1000],
+                  [300 , 160, 1250],
+                  [350 , 143, 1250],
+                  [400 , 121, 2000],
+                  [450 , 111, 1250],
+                  [500 , 123, 1500],
+                  [550 , 87, 1200],
+                  [600 , 63, 300]
+                ];
+
+  // set up the canvas
+  let height = 400;
+  let width = 800;
+  let canvas = d3.select('#main-text').append('svg')
+    .attr('width',width)
+    .attr('height',height)
+
+  // draw the circles
+  canvas.selectAll('circle')
+    .data(dataset)
+    .enter()
+    .append('circle')
+    .attr('cx', (d) => d[0])
+    .attr('cy', (d) => height-d[1])
+    .attr('r', (d) => Math.sqrt(d[2]/Math.PI))
+    .style('fill','orange')
+    .style('opacity',0.4)
+
+  // labels must be added separately
+  canvas.selectAll('text')
+    .data(dataset)
+    .enter()
+    .append('text')
+    .attr('x', (d) => d[0])
+    .attr('y', (d) => height-d[1]+2)
+    .text( (d) => d[2])
+    .attr('font-family','Helvetica')
+    .attr('font-size','8px')
+    .attr('fill','red')
+    .attr('opacity',0.5)
+    .attr('text-anchor','middle')
+      </code></pre>
+      </div>
+    </section>
+
+    <script type='text/javascript'>
+      let dataset = [ [100 , 330, 500],
+                      [150 , 310, 600],
+                      [200 , 250, 1000],
+                      [250 , 220, 1000],
+                      [300 , 160, 1250],
+                      [350 , 143, 1250],
+                      [400 , 121, 2000],
+                      [450 , 111, 1250],
+                      [500 , 123, 1500],
+                      [550 , 87, 1200],
+                      [600 , 63, 300]
+                    ];
+
+      // set up the canvas
+      let height = 400;
+      let width = 800;
+      let canvas = d3.select('#main-text').append('svg')
+        .attr('width',width)
+        .attr('height',height)
+
+      // draw the circles
+      canvas.selectAll('circle')
+        .data(dataset)
+        .enter()
+        .append('circle')
+        .attr('cx', (d) => d[0])
+        .attr('cy', (d) => height-d[1])
+        .attr('r', (d) => Math.sqrt(d[2]/Math.PI))
+        .style('fill','orange')
+        .style('opacity',0.4)
+
+      // labels must be added separately
+      canvas.selectAll('text')
+        .data(dataset)
+        .enter()
+        .append('text')
+        .attr('x', (d) => d[0])
+        .attr('y', (d) => height-d[1]+2)
+        .text( (d) => d[2])
+        .attr('font-family','Helvetica')
+        .attr('font-size','8px')
+        .attr('fill','red')
+        .attr('opacity',0.5)
+        .attr('text-anchor','middle')
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>D3js</title>
+    <link href="css/materialize.min.css" rel="stylesheet">
+    <script src="js/materialize.min.js"></script>
+    <script src="js/d3.min.js"></script>
+    <!-- code highlighting -->
+    <link href="css/darcula.css" rel="stylesheet">
+    <script src="js/highlight.pack.js"></script>
+    <script> hljs.initHighlightingOnLoad();</script>
+  </head>
+
+  <body>
+
+    <section>
+      <header class="container">
+          <h3>Data binding</h3>
+      </header>
+      <div class="container">
+        <p>An example of associating an array with html elements using D3.js data binding.</p>
+    </div>
+    </section>
+
+    <section style='display:none;' id='error-list'>
+      <div class='card-panel red lighten-4 grey-text'>
+        <ul>
+        <li><h5 class='red-text text-darken-3'>Errors:</h5>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="container" id='main-text'>
+        <p> List of all countries: </p>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+      <pre><code class="javascript">
+  let countries = [
+    'Argentina', 'Australia', 'Austria', 'Bangladesh', 'Belgium',
+    'Brunei', 'Cameroon', 'Chile', 'China', 'Cuba', 'Denmark',
+    'Egypt', 'Eritrea', 'Estonia',
+  ]
+
+  // we are going to append to #main-text
+  d3.select('#main-text')
+    // possibly the most confusing part of D3.js, this creates an li
+    // these are the elements we want to associate with the data
+    // but obviously they do not exist at the moment
+    .selectAll('li')
+    // provide the data
+    .data(countries)
+    // here is where we link the li elements with the data
+    .enter()
+    // create and append the li elements
+    .append('li')
+    // set the text for the li elements to be the data
+    // d is automatically set to be the array entry
+    .text( (d) => d)
+      </code></pre>
+      </div>
+    </section>
+
+    <script type='text/javascript'>
+      let countries = [
+        'Argentina', 'Australia', 'Austria', 'Bangladesh', 'Belgium',
+        'Brunei', 'Cameroon', 'Chile', 'China', 'Cuba', 'Denmark',
+        'Egypt', 'Eritrea', 'Estonia',
+      ]
+
+      // we are going to append to #main-text
+      d3.select('#main-text')
+        // possibly the most confusing part of D3.js
+        // these are the elements we want to associate with the data
+        // but obviously they do not exist at the moment
+        .selectAll('li')
+        // provide the data
+        .data(countries)
+        // here is where we link the li elements with the data
+        .enter()
+        // create and append the li elements
+        .append('li')
+        // set the text for the li elements to be the data
+        // d is automatically set to be the array entry
+        .text( (d) => d)
+
+    </script>
+  </body>
+</html>

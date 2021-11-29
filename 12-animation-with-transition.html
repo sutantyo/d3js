@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>D3js</title>
+    <link href="css/materialize.min.css" rel="stylesheet">
+    <script src="js/materialize.min.js"></script>
+    <script src="js/d3.min.js"></script>
+    <!-- code highlighting -->
+    <link href="css/darcula.css" rel="stylesheet">
+    <script src="js/highlight.pack.js"></script>
+    <script> hljs.initHighlightingOnLoad();</script>
+  </head>
+
+  <body>
+
+    <section>
+      <header class="container">
+          <h3>Animation with transition</h3>
+      </header>
+    </section>
+
+    <!-- section used to display errors -->
+    <section style='display:none;' id='error-list'>
+      <div class='card-panel red lighten-4 grey-text'>
+        <ul>
+        <li><h5 class='red-text text-darken-3'>Errors:</h5>
+        </ul>
+      </div>
+    </section>
+
+    <!-- section to show D3.js reults -->
+    <section>
+      <div class="container" id='button-holder' style='display:flex;align-items:center;justify-content:center;'>
+      </div>
+      <div class="container" id='main-text'>
+      </div>
+    </section>
+
+    <!-- section to show code on html -->
+    <section>
+      <div class="container">
+      <pre><code class="javascript">
+  d3.select('#button-holder')
+    .append('a')
+    .attr('class','transition-button')
+    .attr('class','waves-effect waves-light btn orange lighten-3')
+    .html('START')
+    .on('click', () => {
+      d3.select('#button-holder').remove()
+      d3.interval( () =>
+        {if (counter >= data.length)
+            counter = 0;
+        update(data[counter++])}, 1000 )
+    })
+
+  function update(data){
+    var text = canvas
+        .selectAll('text')
+        .data(data, (d,i) => d)
+
+      text
+        .transition()
+        .duration(750)
+        .attr('x', (d,i) => 80 + i * 24)
+        .text( (d) => d)
+
+      text.enter()
+        .append('text')
+        .attr('font-family','menlo')
+        .attr('font-size','40')
+        .attr('fill','peachpuff')
+        .attr('opacity',1e-6)
+        .attr('x', (d,i) => 80 + i * 24)
+        .text( (d) => d)
+        .transition()
+        .duration(750)
+        .attr('opacity',1)
+        .attr('fill',d3.rgb(80+counter*6,180-counter*12,160-counter*5))
+        .attr('y',280)
+
+      text.exit()
+        .transition()
+        .duration(750)
+        .attr('y',800)
+        .remove()
+    }
+  <!-- insert code here -->
+      </code></pre>
+      </div>
+    </section>
+
+    <!-- insert script (i.e d3 code) here -->
+    <script type='text/javascript'>
+    let margin = {top: 40, right: 20, bottom: 40, left: 20}
+    let height = 800 - margin.left - margin.right;
+    let width = 800 - margin.top - margin.bottom;
+    let canvas = d3.select('#main-text').append('svg')
+      .attr('width',width + margin.left + margin.right)
+      .attr('height',height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform','translate('+margin.left+','+margin.top+')')
+
+    let data = [ 'hi'.split(''),
+                 'hi, everyone'.split(''),
+                 ''.split(''),
+                 'how are you today?'.split(''),
+                 ''.split(''),
+                 'are you going to'.split(''),
+                 'do any work?'.split(''),
+                 'today?'.split(''),
+                 'today?'.split(''),
+                 'today is a good day'.split(''),
+                 'to do some work'.split(''),
+                 ''.split(''),
+                 ''.split(''),
+                 '           so'.split(''),
+                 ''.split(''),
+                 "let's do some work!".split(''),
+                 '          !'.split(''),
+                 'go learn your html!'.split(''),
+                 'go learn your css!'.split(''),
+                 'go learn your javascript!'.split(''),
+                 '          !'.split(''),
+                 ''.split(''),
+                 'i hope you have'.split(''),
+                 'a good day today'.split(''),
+                 ''.split(''),
+                 'that is all'.split(''),
+                 ''.split(''),
+                 '         cat'.split(''),
+                 '          act'.split(''),
+                 '         acts'.split(''),
+                 '        tacos'.split(''),
+                 ''.split(''),
+                 ''.split(''),
+                 '        TACOS!'.split(''),
+                 ''.split(''),
+                 ''.split(''),
+                 ''.split(''),
+                 ''.split(''),
+                 ''.split(''),
+                 ''.split(''),
+                 ''.split(''),
+                 ''.split(''),
+                 ''.split(''),
+               ];
+    let counter = 0;
+
+    d3.select('#button-holder')
+      .append('a')
+      .attr('class','transition-button')
+      .attr('class','waves-effect waves-light btn orange lighten-3')
+      .html('START')
+      .on('click', () => {
+        d3.select('#button-holder').remove()
+        d3.interval( () =>
+          {if (counter >= data.length)
+              counter = 0;
+          update(data[counter++])}, 1000 )
+      })
+
+    /*
+    d3.interval( () =>
+      {if (counter >= data.length)
+          counter = 0;
+      update(data[counter++])}, 1000 )
+      */
+    function update(data){
+      var text = canvas
+          .selectAll('text')
+          .data(data, (d,i) => d)
+
+        text
+          .transition()
+          .duration(750)
+          .attr('x', (d,i) => 80 + i * 24)
+          .text( (d) => d)
+
+        text.enter()
+          .append('text')
+          .attr('font-family','menlo')
+          .attr('font-size','40')
+          .attr('fill','peachpuff')
+          .attr('opacity',1e-6)
+          .attr('x', (d,i) => 80 + i * 24)
+          .text( (d) => d)
+          .transition()
+          .duration(750)
+          .attr('opacity',1)
+          .attr('fill',d3.rgb(80+counter*6,180-counter*12,160-counter*5))
+          .attr('y',280)
+
+        text.exit()
+          .transition()
+          .duration(750)
+          .attr('y',800)
+          .remove()
+        }
+
+    </script>
+  </body>
+</html>

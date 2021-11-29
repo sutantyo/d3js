@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>D3js</title>
+    <link href="css/materialize.min.css" rel="stylesheet">
+    <script src="js/materialize.min.js"></script>
+    <script src="js/d3.min.js"></script>
+    <!-- code highlighting -->
+    <link href="css/darcula.css" rel="stylesheet">
+    <script src="js/highlight.pack.js"></script>
+    <script> hljs.initHighlightingOnLoad();</script>
+  </head>
+
+  <body>
+
+    <section>
+      <header class="container">
+          <h3>Basic circle with scales</h3>
+      </header>
+      <div class="container"
+        <p>
+          Using d3.linearScale() to automatically scale the x and y coordinates of the circles.
+        </p>
+      </div>
+    </section>
+
+    <!-- section used to display errors -->
+    <section style='display:none;' id='error-list'>
+      <div class='card-panel red lighten-4 grey-text'>
+        <ul>
+        <li><h5 class='red-text text-darken-3'>Errors:</h5>
+        </ul>
+      </div>
+    </section>
+
+    <!-- main section to show D3.js reults -->
+    <section>
+      <div class="container" id='main-text'>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+      <pre><code class="javascript">
+        let dataset = [ [10 , 63, 50],
+                        [12 , 31, 20],
+                        [17 , 15, 50],
+                        [12 , 22, 50],
+                        [21 , 36, 25],
+                        [18 , 43, 25],
+                        [12 , 89, 20],
+                        [24 , 11, 25],
+                        [ 8 , 75, 15],
+                        [11 , 51, 30],
+                        [16 , 63, 30]
+                      ];
+
+        let height = 400;
+        let width = 800;
+        let canvas = d3.select('#main-text').append('svg')
+          .attr('width',width)
+          .attr('height',height)
+
+        let scale_x = d3.scaleLinear()
+            .domain([0,30])
+            .range([0,800])
+        let scale_y = d3.scaleLinear()
+            .domain([0,100])
+            .range([400,0])
+        let scale_r = d3.scaleLinear()
+            .domain( [ 0,
+                       d3.max(dataset, (d) => d[2]) ] )
+            .range([0,4000])
+
+        canvas.selectAll('circle')
+          .data(dataset)
+          .enter()
+          .append('circle')
+          .attr('cx', (d) => scale_x(d[0]))
+          .attr('cy', (d) => scale_y(d[1]))
+          .attr('r', (d) => Math.sqrt(scale_r(d[2])/Math.PI))
+          .style('fill','orange')
+          .style('opacity',0.4)
+
+        canvas.selectAll('text')
+          .data(dataset)
+          .enter()
+          .append('text')
+          .attr('x', (d) => scale_x(d[0]))
+          .attr('y', (d) => scale_y(d[1]+2)+12)
+          .text( (d) => d[2])
+          .attr('font-family','Helvetica')
+          .attr('font-size','12px')
+          .attr('fill','red')
+          .attr('opacity',0.5)
+          .attr('text-anchor','middle')
+      </code></pre>
+      </div>
+    </section>
+
+    <script type='text/javascript'>
+      let dataset = [ [10 , 63, 50],
+                      [12 , 31, 20],
+                      [17 , 15, 50],
+                      [12 , 22, 50],
+                      [21 , 36, 25],
+                      [18 , 43, 25],
+                      [12 , 89, 20],
+                      [24 , 11, 25],
+                      [ 8 , 75, 15],
+                      [11 , 51, 30],
+                      [16 , 63, 30]
+                    ];
+
+      let height = 400;
+      let width = 800;
+      let canvas = d3.select('#main-text').append('svg')
+        .attr('width',width)
+        .attr('height',height)
+
+      let scale_x = d3.scaleLinear()
+          .domain([0,30])
+          .range([0,800])
+      let scale_y = d3.scaleLinear()
+          .domain([0,100])
+          .range([400,0])
+      let scale_r = d3.scaleLinear()
+          .domain( [ 0,
+                     d3.max(dataset, (d) => d[2]) ] )
+          .range([0,4000])
+
+      canvas.selectAll('circle')
+        .data(dataset)
+        .enter()
+        .append('circle')
+        .attr('cx', (d) => scale_x(d[0]))
+        .attr('cy', (d) => scale_y(d[1]))
+        .attr('r', (d) => Math.sqrt(scale_r(d[2])/Math.PI))
+        .style('fill','orange')
+        .style('opacity',0.4)
+
+      canvas.selectAll('text')
+        .data(dataset)
+        .enter()
+        .append('text')
+        .attr('x', (d) => scale_x(d[0]))
+        .attr('y', (d) => scale_y(d[1]+2)+12)
+        .text( (d) => d[2])
+        .attr('font-family','Helvetica')
+        .attr('font-size','12px')
+        .attr('fill','red')
+        .attr('opacity',0.5)
+        .attr('text-anchor','middle')
+    </script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+# vim swap files
+
+*.swp
+*.swo
+*.swn
+
+# Local Netlify folder
+.netlify
