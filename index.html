@@ -3,14 +3,16 @@
   <head>
     <title>D3js</title>
     <link href="css/materialize.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
     <script defer src="js/materialize.js"></script>
     <script defer src="js/d3.js"></script>
+    <script defer src="js/highlight.pack.js"></script>:
 
     <!-- code highlighting -->
     <link href="css/default.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script defer src="js/highlight.pack.js"></script>
-    <script> hljs.initHighlightingOnLoad();</script>
+    <script src="js/highlight.pack.js"></script>
+    <script defer> hljs.initHighlightingOnLoad();</script>
   </head>
 
   <body>
@@ -33,53 +35,76 @@
       </div>
     </section>
 
-    <section>
-      <div class="container" id='main-text'>
-        <div class="collection">
-          <a href="00-dom-manipulation.html" class="collection-item">
-            Manipulating HTML using D3.js
-          </a>
-          <a href="01-reading-data-csv.html" class="collection-item">
-            Reading CSV data
-          </a>
-          <a href="02-reading-data-json.html" class="collection-item">
-            Reading JSON data
-          </a>
-          <a href="03-data-binding-1.html" class="collection-item">
-            Data binding
-          </a>
-          <a href="04-data-binding-2.html" class="collection-item">
-            Data binding (nested elements)
-          </a>
-          <a href="05-basic-circle.html" class="collection-item">
-            Basic SVG
-          </a>
-          <a href="06-basic-circle-with-scales.html" class="collection-item">
-            Adding scales
-          </a>
-          <a href="07-basic-circle-with-axes.html" class="collection-item">
-            Adding axes
-          </a>
-          <a href="08-bar-chart.html" class="collection-item">
-            Bar chart
-          </a>
-          <a href="09-basic-transition.html" class="collection-item">
-            Basic transition
-          </a>
-          <a href="10-more-transition.html" class="collection-item">
-            More transition: enter, update, and exit
-          </a>
-          <a href="11-basic-animation.html" class="collection-item">
-            Basic animation
-          </a>
-          <a href="12-animation-with-transition.html" class="collection-item">
-            Animation with transition
-          </a>
-        </div>
+    <section id="menu">
+      <ul class="collapsible">
+        <li>
+          <div class="collapsible-header">Basic</div>
+          <div class="collapsible-body">
+            <div class="collection">
+              <a href="00-dom-manipulation.html" class="collection-item">
+                Manipulating HTML using D3.js
+              </a>
+              <a href="01-reading-data-csv.html" class="collection-item">
+                Reading CSV data
+              </a>
+              <a href="02-reading-data-json.html" class="collection-item">
+                Reading JSON data
+              </a>
+              <a href="03-data-binding-1.html" class="collection-item">
+                Data binding
+              </a>
+              <a href="04-data-binding-2.html" class="collection-item">
+                Data binding (nested elements)
+              </a>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="collapsible-header">Basic Shapes</div>
+          <div class="collapsible-body">
+            <div class="collection">
+              <a href="05-basic-circle.html" class="collection-item">
+                Basic SVG
+              </a>
+              <a href="06-basic-circle-with-scales.html" class="collection-item">
+                Adding scales
+              </a>
+              <a href="07-basic-circle-with-axes.html" class="collection-item">
+                Adding axes
+              </a>
+              <a href="08-bar-chart.html" class="collection-item">
+                Bar chart
+              </a>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="collapsible-header">Transition and Animation</div>
+          <div class="collapsible-body">
+            <div class="collection">
+              <a href="09-basic-transition.html" class="collection-item">
+                Basic transition
+              </a>
+              <a href="10-more-transition.html" class="collection-item">
+                More transition: enter, update, and exit
+              </a>
+              <a href="11-basic-animation.html" class="collection-item">
+                Basic animation
+              </a>
+              <a href="12-animation-with-transition.html" class="collection-item">
+                Animation with transition
+              </a>
+            </div>
+          </div>
+        </li>
+      </ul>
     </section>
 
     <script type='text/javascript'>
-      <!-- insert script (i.e d3 code) here -->
+      document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.collapsible');
+        var instances = M.Collapsible.init(elems, {accordion: true});
+      });
     </script>
   </body>
 </html>
