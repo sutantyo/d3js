@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>D3js</title>
+    <title>d3js - reading data from CSV</title>
     <link href="css/materialize.min.css" rel="stylesheet">
     <script src="js/materialize.min.js"></script>
     <script src="js/d3.min.js"></script>
     <!-- code highlighting -->
-    <link href="css/darcula.css" rel="stylesheet">
+    <link href="css/an-old-hope.css" rel="stylesheet">
     <script src="js/highlight.pack.js"></script>
     <script> hljs.initHighlightingOnLoad();</script>
   </head>
@@ -18,7 +18,10 @@
           <h3>Reading data from a CSV file</h3>
       </header>
       <div class="container">
-        <p>Reads data from a csv which is then converted into an array of objects.</p>
+        <p>The function <code>d3.csv()</code> reads data from a CSV file and convert it into 
+        an array of objects (key-value pairs). The first row of the CSV is going to be interpreted as the 
+        objects' keys, so please make sure that the CSV has proper table headers. 
+        </p>
     </div>
     </section>
 
@@ -30,10 +33,6 @@
       </div>
     </section>
 
-    <section>
-      <div class="container" id='main-text'>
-      </div>
-    </section>
 
     <section>
       <div class="container">
@@ -41,7 +40,7 @@
   d3.csv('data/countries_of_the_world.csv')
     .then( (data) => {
       // construct the table and table headers
-      let table = d3.select('#main-text').append('table');
+      let table = d3.select('#example').append('table');
       table.attr('class','striped')
       table.append('thead').append('tr');
       table.select('thead').select('tr').append('th').html('Country');
@@ -71,11 +70,16 @@
     .catch( (error) => {
       d3.select('#error-list').style('display','block')
       let error_list = d3.select('#error-list')
-                         .select('ul')
-                         .append('li').attr('class','grey-text text-darken-1')
+                          .select('ul')
+                          .append('li').attr('class','grey-text text-darken-1')
       error_list.html('Error on loading csv file: ' + error)
     })
-    </code></pre>
+</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <div class="container" id='example'>
       </div>
     </section>
 
@@ -83,7 +87,7 @@
       d3.csv('data/countries_of_the_world.csv')
         .then( (data) => {
           // construct the table and table headers
-          let table = d3.select('#main-text').append('table');
+          let table = d3.select('#example').append('table');
           table.attr('class','striped')
           table.append('thead').append('tr');
           table.select('thead').select('tr').append('th').html('Country');
