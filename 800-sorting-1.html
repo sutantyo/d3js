@@ -19,7 +19,7 @@
 
     <section>
       <header class="container">
-          <h3>DOM manipulation</h3>
+          <h3>Sorting</h3>
       </header>
     </section>
 
@@ -33,7 +33,7 @@
     </section>
 
     <section>
-      <div class="container" id='main'>
+      <div id='main'>
       </div>
     </section>
   </body>
@@ -49,26 +49,64 @@
 
   <script type='text/javascript'>
 
+
+
       // generate an array of random integers
-      data = Array.from({length: 10}, () => Math.floor(Math.random() * 100));
+      dataset = Array.from({length: 8}, () => Math.floor(Math.random() * 100));
 
       // set up the canvas
       let canvas = d3.select("#main").append('svg')
-        .attr('width','80%')
+        .attr('width','90%')
         .attr('height','800px')
 
-      // draw the circles
-      let i = 0;
-      canvas.selectAll('circle')
-        .data(data)
+      let y_offset = 120;
+      let x_offset = 78;
+      let radius = 36;
+
+      // create g elements for each node (grouping the circle and text)
+      // and give it class .node
+      const nodes = canvas.selectAll('g.nodes')
+        .data(dataset)
         .enter()
-        .append('circle')
-        .attr('cx', () => {i; i+=50})
-        .attr('cy', 60)
-        .attr('r', 30)
-        .style('fill','orange')
-        .style('opacity',0.4)
+        .append('g')
+        .attr('class','nodes')
+        .call(d3.drag()
+          .on('start',dragStarted)
+          .on('drag',dragged)
+          .on('end',dragEnded));
+
+      nodes.append('circle')
+        .attr('cx', (d,i) => (i+1) * x_offset)
+        .attr('cy', y_offset)
+        .attr('r', radius)
+        .style('fill', (d) => "rgb(255," + (256 - 2*d) + ",80")
+        .style('stroke','lightgrey')
+        .style('stroke-width','1.5px')
+        .style('opacity',0.7)
       
+      nodes.append('text')
+        .attr('x', (d,i) => (i+1) * x_offset)
+        .attr('y', y_offset+5)
+        .text( (d) => d)
+        .attr('font-family','Helvetica')
+        .attr('font-size','20px')
+        .attr('fill','brown')
+        .attr('text-anchor','middle')
+
+
+      function dragStarted(d) {
+        d3.select(this).raise().classed("active", true);
+      }
+
+      function dragged(e,d) {
+        d3.select(this).select("circle").attr("cx", e.x).attr("cy", e.y);
+        d3.select(this).select("text").attr("x", e.x).attr("y", e.y+8);
+        d3.select(this).attr("x",e.x-50).attr("y",e.y-5) ;
+      }
+
+      function dragEnded(d) {
+        d3.select(this).classed("active", false);
+      }
 
   </script>
 </html>
