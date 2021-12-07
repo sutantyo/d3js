@@ -43,13 +43,15 @@
 
 
       // generate an array of random integers
-      dataset = Array.from({length: 16}, () => Math.floor(Math.random() * 100));
-      dataset = [5,50,20,10,5,10,50,100,5,20,20,10,50,20,5]
+      //dataset = Array.from({length: 16}, () => Math.floor(Math.random() * 100));
+      dataset = [5,50,20,10,5,10,50,100,5,20,20,10,50,20,5,10]
 
       // set up the canvas
       let canvas = d3.select("#main").append('svg')
-        .attr('width','90%')
-        .attr('height','800px')
+        .style('width','100%')
+        .style('height','800px')
+
+      d3.select('#main').style('width','80%').style('margin','auto');
 
       let y_offset = 480;
       let x_offset = 78;
