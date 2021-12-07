@@ -52,7 +52,7 @@
 
 
       // generate an array of random integers
-      dataset = Array.from({length: 16}, () => Math.floor(Math.random() * 100));
+      dataset = [50,10,20,80,40,30,60,100,50]
 
       // set up the canvas
       let canvas = d3.select("#main").append('svg')
@@ -60,8 +60,8 @@
         .attr('height','800px')
 
       let y_offset = 120;
-      let x_offset = 78;
-      let radius = 36;
+      let x_offset = 88;
+      let radius = 42;
 
       // create g elements for each node (grouping the circle and text)
       // and give it class .node
@@ -80,20 +80,10 @@
         .attr('cy', y_offset)
         .attr('r', radius)
         .style('fill', (d) => "rgb(" + (220-d/3*5) + "," + (200 - d/3) + "," + (235))
-        .style('stroke','lightgrey')
-        .style('stroke-width','1.0px')
-        .style('opacity',0.7)
+        //.style('stroke','lightgrey')
+        //.style('stroke-width','1.5px')
+        .style('opacity',0.95)
       
-      nodes.append('text')
-        .attr('x', (d,i) => (i+1) * x_offset)
-        .attr('y', y_offset+5)
-        .text( (d) => d)
-        .attr('font-family','Helvetica')
-        .attr('font-size','20px')
-        .attr('fill','grey')
-        .attr('text-anchor','middle')
-
-
       function dragStarted(d) {
         d3.select(this).raise().classed("active", true);
       }

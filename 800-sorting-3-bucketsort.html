@@ -53,6 +53,7 @@
 
       // generate an array of random integers
       dataset = Array.from({length: 16}, () => Math.floor(Math.random() * 100));
+      dataset = [5,50,20,10,5,10,50,100,5,20,20,10,50,20,5]
 
       // set up the canvas
       let canvas = d3.select("#main").append('svg')
@@ -81,8 +82,8 @@
         .attr('r', radius)
         .style('fill', (d) => "rgb(" + (220-d/3*5) + "," + (200 - d/3) + "," + (235))
         .style('stroke','lightgrey')
-        .style('stroke-width','1.0px')
-        .style('opacity',0.7)
+        .style('stroke-width','1px')
+        .style('opacity',0.9)
       
       nodes.append('text')
         .attr('x', (d,i) => (i+1) * x_offset)
