@@ -6,12 +6,12 @@
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
 
-    <link href="css/materialize.min.css" rel="stylesheet">
-    <script src="js/materialize.min.js"></script>
-    <script src="js/d3.min.js"></script>
+    <link href="../css/materialize.min.css" rel="stylesheet">
+    <script src="../js/materialize.min.js"></script>
+    <script src="../js/d3.min.js"></script>
     <!-- code highlighting -->
-    <link href="css/an-old-hope.css" rel="stylesheet">
-    <script src="js/highlight.pack.js"></script>
+    <link href="../css/an-old-hope.css" rel="stylesheet">
+    <script src="../js/highlight.pack.js"></script>
     <script> hljs.initHighlightingOnLoad();</script>
   </head>
 
@@ -45,6 +45,7 @@
 
       // generate an array of random integers
       dataset = Array.from({length: 16}, () => Math.floor(Math.random() * 100));
+      dataset = [14,36,23,31,11,22,27,12,18,32,34,15,21,26,31]
 
       // set up the canvas
       let canvas = d3.select("#main").append('svg')

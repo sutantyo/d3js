@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>D3js</title>
+    <link href="../css/materialize.min.css" rel="stylesheet">
+    <script src="../js/materialize.min.js"></script>
+    <script src="../js/d3.min.js"></script>
+    <!-- code highlighting -->
+    <link href="../css/darcula.css" rel="stylesheet">
+    <script src="../js/highlight.pack.js"></script>
+    <script> hljs.initHighlightingOnLoad();</script>
+  </head>
+
+  <body>
+
+    <section>
+      <header class="container">
+          <h3>Title</h3>
+      </header>
+    </section>
+
+    <!-- section used to display errors -->
+    <section style='display:none;' id='error-list'>
+      <div class='card-panel red lighten-4 grey-text'>
+        <ul>
+        <li><h5 class='red-text text-darken-3'>Errors:</h5>
+        </ul>
+      </div>
+    </section>
+
+    <style>
+      body{
+        background-color: #2e4052;
+        color: #bdd9bf
+      }
+      .node{
+        fill: #ffc857;
+        stroke: #2e4052;
+        stroke-width: 2px;
+      }
+      .node-text{
+         font-family: Arial, Helvetica, sans-serif;
+         font-size: 12pt;
+         fill: #2e4052;
+         pointer-events:none;
+      }
+      .edge{
+        fill: none;
+        stroke: #bdd9bf;
+        stroke-width: 1px;
+      }
+      .edge-shadow{
+        stroke: rgb(190, 190, 190);
+        opacity: 0%;
+        stroke-width: 20px;
+      }
+
+      .selected{
+        stroke: orange;
+      }
+      .node-selected, .arrow-selected{
+        fill: orange
+      }
+      .arrow{
+        fill: #bdd9bf;
+      }
+      
+      path:focus, circle:focus{
+        outline:none
+      }
+      #main{
+        border: 1px solid #bdd9bf52;
+        border-radius: 12px;
+      }
+    </style>
+
+    <!-- section to show D3.js reults -->
+    <section>
+      <div class="container" id='main-text'>
+      </div>
+    </section>
+
+    <!-- section to show code on html -->
+    <section>
+      <div class="container">
+      <pre><code class="javascript">
+        <!-- insert code here -->
+      </code></pre>
+      </div>
+    </section>
+
+    <!-- insert script (i.e d3 code) here -->
+    <script type='text/javascript'>
+      // key variables
+      let node_size = 25          // the size (diameter) of the nodes
+      let arc_size = 20           // shape of arc (increasing will increase convexity)
+      let angle_displacement = 20
+      let node_list = new Map()   // mapping containing list of nodes
+      let edge_list = new Map()   // mapping containing list of edges
+
+      // mapping to represents the connection
+      // e.g. 1 -> {2,3} denotes that 1 is connected to 2 and 3
+      let adj = new Map() 
+      // the reverse mapping, so following the above example, we would have
+      //      2 -> {1}
+      //      3 -> {1}
+      let rev_adj = new Map()
+
+      // a counter for node is (i.e 1st has id=1, 2nd node has id=2, etc)
+      let global_id = 1
+
+      // canvas properties
+      let width = '100%'
+      let height = 750;
+
+      // the following function defines the drag behaviour for nodes
+      // note that it doesn't add the behaviour yet, this is done later when we create the node
+      // using the line node_drag_handler(node);
+      // there are three behaviours to set: when the drag starts (on 'start'), as it is being drag
+      // (on 'drag') and when it ends (on 'end')
+
+      // a toggle to tell us that we're in the middle of dragging
+      let drag_state = false
+
+      let node_drag_handler = d3.drag()
+        .on('start', function(){
+          drag_state = true
+          if (d3.event.sourceEvent.shiftKey){
+            let x = d3.mouse(this)[0]
+            let y = d3.mouse(this)[1]
+            let cx = d3.select(this).attr('cx')
+            let cy = d3.select(this).attr('cy')
+            // when the drag starts, if the shift key is pressed, create temporary line
+            d3.select('svg').append('line').attr('id','temp-line')
+              .attr('x1',cx)
+              .attr('y1',cy)
+              .lower()
+          }
+        })
+        .on('drag', function(){
+          remove_all_out_of_focus()
+
+          let x = d3.mouse(this)[0]
+          let y = d3.mouse(this)[1]
+          let id = parseInt(this.dataset.id)
+          // case 1: if the shift key is pressed, create a temporary line that ends where
+          // the mouse is
+          if (d3.event.sourceEvent.shiftKey){
+            d3.select('#temp-line')
+               .attr('x2',x)
+               .attr('y2',y)
+               .attr('class','edge')
+          }
+          // if no modifier key is pressed, then we're just moving a node around, 
+          // so update its x-y coordinate, and the x-y coordinate of every edges connected to it
+          else {
+            let coords = d3.mouse(this)
+            d3.select(this)
+              .attr('cx',x)
+              .attr('cy',y)
+            d3.select('#n'+id+'-text')
+              .attr('x',x-5)
+              .attr('y',y+5)
+            for (let key of edge_list.keys()){
+              edge = edge_list.get(key)
+              if (edge.end === id && edge.type === 'line'){
+                d3.select('#'+key).remove()
+                d3.select('#'+key+'shadow').remove()
+                let x1 = node_list.get(edge.start).x
+                let y1 = node_list.get(edge.start).y
+                draw_line(x1,y1,x,y,edge.start,edge.end)
+              }
+              else if (edge.start === id && edge.type === 'line'){
+                d3.select('#'+key).remove()
+                d3.select('#'+key+'shadow').remove()
+                let x2 = node_list.get(edge.end).x
+                let y2 = node_list.get(edge.end).y
+                draw_line(x,y,x2,y2,edge.start,edge.end)
+              }
+              else if (edge.end === id && edge.type === 'arc'){
+                d3.select('#'+key).remove()
+                d3.select('#'+key+'shadow').remove()
+                let x1 = node_list.get(edge.start).x
+                let y1 = node_list.get(edge.start).y
+                draw_arc(x1,y1,x,y,edge.start,edge.end)
+              }
+              else if (edge.start === id && edge.type === 'arc'){
+                d3.select('#'+key).remove()
+                d3.select('#'+key+'shadow').remove()
+                let x2 = node_list.get(edge.end).x
+                let y2 = node_list.get(edge.end).y
+                draw_arc(x,y,x2,y2,edge.start,edge.end) 
+              }
+            } 
+          }
+        })
+        .on('end', function(){
+
+          drag_state = false
+          // where the mouse cursor is
+          let x = d3.mouse(this)[0]
+          let y = d3.mouse(this)[1]
+          // the active node (the start of the drag)
+          let start = parseInt(this.dataset.id)
+
+          // Case 1: if the shift key is pressed, we create an edge between 
+          // the node where the drag starts and the node where the drag ends
+          if (d3.event.sourceEvent.shiftKey){
+            // when the drag ends, find out if there's a node in the vicinity (apart from the 
+            // starting node, obviously)
+            // i.e. go through each node using the following for loop
+            for(let end of node_list.keys()){
+
+              // x1 and y1 are the start of the line (i.e. the starting node)
+              let x1 = parseInt(d3.select('#temp-line').attr('x1'))
+              let y1 = parseInt(d3.select('#temp-line').attr('y1'))
+              if (start !== end){
+                // pick a node, and let x2 and y2 be its coordinates
+                node = node_list.get(end)
+                let x2 = node.x 
+                let y2 = node.y
+                // check if the picked node is near where the mouse cursor is 
+                if (Math.abs(x-x2) < node_size && Math.abs(y-y2) < node_size){
+                  // if yes, we're going to create an edge
+
+                  // make the id of this to equal the nodes connected by it, 
+                  // e.g. if it connects node 3 and node 5, give it id 'e3-5'
+                  // and reverse id 'e5-3'
+                  let edge_id = 'e' + start + '-' + end
+                  let rev_edge_id = 'e' + end + '-' + start
+
+                  // add the edge (unless it already exists)
+                  if (!edge_list.has(edge_id)){
+                    // check if there's already an edge going the other way
+                    // if yes, then we need to draw an arc, and convert
+                    // the existing edge into an arc as well
+                    if (edge_list.has(rev_edge_id)){
+                      d3.select('#'+rev_edge_id).remove()
+                      d3.select('#'+rev_edge_id+'shadow').remove()
+                      draw_arc(x1,y1,x2,y2,start,end)
+                      draw_arc(x2,y2,x1,y1,end,start)
+                      edge_list.set(rev_edge_id,{'start':end,'end':start,'type':'arc'})
+                      edge_list.set(edge_id,{'start':start,'end':end,'type':'arc'})
+                    }
+                    // if not, then just draw a straight line
+                    else {
+                      edge_list.set(edge_id,{'start':start,'end':end,'type':'line'})
+                      draw_line(x1,y1,x2,y2,start,end)
+                    }
+                    // in both cases, add to the adjacency list
+                    adj.get(start).add(end)
+                    rev_adj.get(end).add(start)
+                  }
+                  break;
+                }
+              }
+            }
+            // delete the temp line
+            d3.select('#temp-line').remove()
+          }
+          // if no modifier key is pressed, we only move the node, so update its x-y coords
+          else {
+            node_list.set(start,{'x':x,'y':y})
+          }
+        })
+
+
+      // draw a straight line from (x1,y1) to (x2,y2) and give it the passed id
+      function draw_line(x1,y1,x2,y2,start,end){
+        let id = 'e'+start+'-'+end
+        let c_x1, cy_1, cx_2, cy_2
+
+        // some magic here to move the coordinates of the path to the edge of the node circle (instead of
+        // starting/ending at middle of nodes)
+        let p = (node_size*node_size)/(Math.abs(y2-y1)*Math.abs(y2-y1) + Math.abs(x2-x1)*Math.abs(x2-x1))
+        let dx = Math.abs(x2-x1)*Math.sqrt(p)
+        let dy = Math.abs(y2-y1)*Math.sqrt(p)
+        // (x2,y2) on top right quadrant of (x1,y1)
+
+        if (y2 < y1 && x2 >= x1){
+          c_x1 = x1 + dx
+          c_y1 = y1 - dy
+          c_x2 = x2 - dx
+          c_y2 = y2 + dy
+        }
+        // (x2,y2) on bottom right quadrant of (x1,y1)
+        else if (y2 >= y1 && x2 >= x1){
+          c_x1 = x1 + dx
+          c_y1 = y1 + dy
+          c_x2 = x2 - dx
+          c_y2 = y2 - dy
+        }
+        // (x2,y2) on bottom left quadrant of (x1,y1)
+        else if (y2 >= y1 && x2 < x1){
+          c_x1 = x1 - dx
+          c_y1 = y1 + dy
+          c_x2 = x2 + dx
+          c_y2 = y2 - dy
+        }
+        // (x2,y2) on top left quadrant of (x1,y1)
+        else if (y2 < y1 && x2 < x1){
+          c_x1 = x1 - dx
+          c_y1 = y1 - dy
+          c_x2 = x2 + dx
+          c_y2 = y2 + dy
+        }
+
+        // first, remove any line with the same id if it already exists
+        d3.select('#'+id).remove()
+        // the line
+        d3.select('svg').append('path')
+                        .attr('class','edge')
+                        .attr('d', "M " + c_x1 + ' ' + c_y1 + ' L ' + c_x2 + ' ' + c_y2)
+                        .attr('id',id)
+                        .lower()  // send to back (hide edges behind nodes)
+                        .attr('marker-end',function(d){ return "url(#arrow)"}) 
+        // draw a corresponding thicker line
+        d3.select('svg').append('path')
+                        .attr('class','edge-shadow')
+                        .attr('d',"M " + c_x1 + ' ' + c_y1 + ' L ' + c_x2 + ' ' + c_y2)
+                        .attr('id',id+'shadow')
+                        .on('focus',function(){
+                          remove_all_out_of_focus()
+                          // when selected, change the colour (also change the colour of the arrow marker)
+                          d3.select('#'+id)
+                            .attr('class','edge selected')
+                            .attr('marker-end',function(d){ return "url(#arrow-selected)"})
+                          // set listeners
+                          d3.select(this).on('keypress',function(){
+                            // delete the edge
+                            if (d3.event.key === 'x'){
+                              let start = edge_list.get(id).start 
+                              let end = edge_list.get(id).end
+                              
+                              // remove the edge from all our maps
+                              adj.get(start).delete(end)
+                              rev_adj.get(end).delete(start)
+                              edge_list.delete(id)
+                              d3.select('#'+id)
+                              .transition().duration(300).style('opacity',0)
+                              .remove()
+                              d3.select(this).remove()
+                            }
+                          })
+                        })
+                        .on('focusout',function(){
+                          d3.select('#'+id)
+                            .attr('class','edge')
+                            .attr('marker-end',function(d){ return "url(#arrow)"})
+                        })
+                        .lower()  // send to back (hide edges behind nodes)
+      }
+
+      // draw an arc from (x1,y1) to (x2,y2) and give it the passed id
+      function draw_arc(x1,y1,x2,y2,start,end){
+        // here is some magic, may add comments later
+        let c_x1, c_y1, c_x2, cy_2
+        let mid_x, mid_y
+
+        // used to control line start/end points
+        let rise = Math.abs(y2-y1)
+        let run = Math.abs(x2-x1)
+        let angle = Math.atan(rise/run)
+        let dx = Math.cos(angle+angle_displacement/180*Math.PI)*node_size
+        let dy = Math.sin(angle+angle_displacement/180*Math.PI)*node_size
+        let dx2 = Math.cos(angle-angle_displacement/180*Math.PI)*node_size
+        let dy2 = Math.sin(angle-angle_displacement/180*Math.PI)*node_size
+
+        // used to control the arc
+        let p = (arc_size*arc_size)/(Math.abs(y2-y1)*Math.abs(y2-y1) + Math.abs(x2-x1)*Math.abs(x2-x1))
+        let m_dx = Math.abs(x2-x1)*Math.sqrt(p)
+        let m_dy = Math.abs(y2-y1)*Math.sqrt(p)
+
+        // (x2,y2) on top right quadrant of (x1,y1)
+        if (y2 < y1 && x2 >= x1){
+          c_x1 = x1 + dx
+          c_y1 = y1 - dy
+          c_x2 = x2 - dx2
+          c_y2 = y2 + dy2
+
+          mid_x = (c_x1+c_x2)/2 - m_dy
+          mid_y = (c_y1+c_y2)/2 - m_dx
+        }
+        // (x2,y2) on top right quadrant of (x1,y1)
+        else if (y2 >= y1 && x2 >= x1){
+          c_x1 = x1 + dx2
+          c_y1 = y1 + dy2
+          c_x2 = x2 - dx
+          c_y2 = y2 - dy
+
+          mid_x = (c_x1+c_x2)/2 + m_dy
+          mid_y = (c_y1+c_y2)/2 - m_dx
+        }
+        // (x2,y2) on bottom left quadrant of (x1,y1)
+        else if (y2 >= y1 && x2 < x1){
+          c_x1 = x1 - dx
+          c_y1 = y1 + dy
+          c_x2 = x2 + dx2
+          c_y2 = y2 - dy2
+
+          mid_x = (c_x1+c_x2)/2 + m_dy
+          mid_y = (c_y1+c_y2)/2 + m_dx
+        }
+        // (x2,y2) on top left quadrant of (x1,y1)
+        else if (y2 < y1 && x2 < x1){
+          c_x1 = x1 - dx2
+          c_y1 = y1 - dy2
+          c_x2 = x2 + dx
+          c_y2 = y2 + dy
+
+          mid_x = (c_x1+c_x2)/2 - m_dy
+          mid_y = (c_y1+c_y2)/2 + m_dx
+        }
+
+        let id = 'e' + start + '-' + end
+        d3.select('#'+id).remove()
+        d3.select('svg').append('path')
+                        .attr('class','edge')
+                        .attr('d', 'M' + c_x1 + ' ' + c_y1 + ' Q ' + mid_x + ' ' + mid_y + ', ' + c_x2 + ' ' + c_y2)
+                        .attr('id',id)
+                        .attr('marker-end',function(d){ return "url(#arrow)"})
+                        //.lower()  // send to back (hide edges behind nodes)
+        d3.select('svg').append('path')
+                        .attr('class','edge-shadow')
+                        .attr('d', 'M' + c_x1 + ' ' + c_y1 + ' Q ' + mid_x + ' ' + mid_y + ', ' + c_x2 + ' ' + c_y2  )
+                        .attr('id',id+'shadow')
+                        // set behaviour when an edge is selected
+                        .on('focus',function(){
+                          remove_all_out_of_focus()
+                          // change the style so we can see which edge is selected
+                          d3.select('#'+id).attr('class','edge selected')
+                            .attr('marker-end',function(d){ return "url(#arrow-selected)"})
+                          // set listeners  
+                          d3.select(this).on('keypress',function(){
+                            // delete the edge
+                            if (d3.event.key === 'x'){
+                              let start = edge_list.get(id).start 
+                              let end = edge_list.get(id).end
+                              adj.get(start).delete(end)
+                              rev_adj.get(end).delete(start)
+                              edge_list.delete(id)
+                              d3.select('#'+id).transition().duration(300).style('opacity',0).remove()
+                              d3.select(this).remove()
+
+                              // need to change the reverse edge into a straight line
+                              let rev_id = 'e'+end+'-'+start
+                              edge_list.get(rev_id).type = 'line'
+                              d3.select('#'+rev_id).remove()
+                              d3.select('#'+rev_id+'shadow').remove()
+                              draw_line(x2,y2,x1,y1,end,start)
+                              
+                            }
+                          })
+                        })
+                        .on('focusout',function(){
+                          d3.select('#'+id)
+                            .attr('class','edge')
+                            .attr('marker-end',function(d){ return "url(#arrow)"})
+                        })
+                        .lower()  
+
+      }
+
+      function draw_node(x, y, size){
+        // don't make a node if there is one nearby (in collision)
+        for(let end of node_list.keys()){
+          let node = node_list.get(end)
+          let x2 = node.x 
+          let y2 = node.y 
+          if (Math.abs(x-x2) < node_size && Math.abs(y-y2) < node_size){
+            return
+          }
+        }
+        // create the circle
+        let id = global_id
+        // add the node to the list of nodes (map)
+        node_list.set(id,{'x': parseInt(x), 'y': parseInt(y),'text':id})
+        // add an empty set to the adj and rev_adj maps
+        adj.set(id,new Set())
+        rev_adj.set(id,new Set())
+
+        let node = d3.select('svg').append('circle')
+          .attr('cx',x)
+          .attr('cy',y)
+          .attr('r',node_size)
+          .attr('class','node')
+          .attr('id','n'+id)
+          .attr('data-id',id)
+          .attr('data-size',size)   // the size of the node
+          .attr('data-text',id)     // the text of the node
+          .on('focus',function(){
+              remove_all_out_of_focus()
+              // change the style so we can see which edge is selected
+              d3.select('#n'+id).attr('class','node')
+              d3.select('#n'+id).attr('class','node node-selected')
+              // set listeners  
+              d3.select(this).on('keypress',function(){
+                console.log(d3.event.key)
+                // delete the edge
+                if (d3.event.key === 'x'){
+                  for(let key of rev_adj.keys()){
+                    rev_adj.get(key).delete(id)
+                  }
+                  for(let key of adj.keys()){
+                    adj.get(key).delete(id)
+                  }
+                  adj.delete(id)
+                  for(let key of edge_list.keys()){
+                    if (edge_list.get(key).start === id || edge_list.get(key).end === id){
+                      d3.select('#'+key).remove()
+                      edge_list.delete(key)
+                    }
+                  }
+                  node_list.delete(id)
+                  d3.select(this).remove()
+                  d3.select('#n'+id+'-text').remove()
+                }
+                if (d3.event.key === 'r'){
+                  d3.event.preventDefault()
+                  let text_x = d3.select(this).attr('cx')
+                  let text_y = d3.select(this).attr('cy')
+                  console.log(this)
+                  d3.select('svg').append('foreignObject')
+                    .attr('x',x+1.5*node_size)
+                    .attr('y',text_y-node_size)
+                    .attr('id','node-text-input-container')
+                    .attr('width',140)
+                    .attr('height',140)
+                    .html(function(d){
+                      return '<input id="node-text-input" type="text" tabindex="-1" onkeydown="\
+                        if(event.keyCode===13){\
+                          let e = new CustomEvent(\'rename\');\
+                          e.id = ' + id + ';\
+                          e.value = this.value;\
+                          window.dispatchEvent(e);}">'
+                    })
+                    document.getElementById('node-text-input').focus()
+                    //d3.select('#node-text-input').focus()
+                }
+              })
+            })
+          .on('focusout',function(){
+            d3.select('#n'+id).attr('class','node')
+          })
+
+        
+        // add the drag behaviour to this node
+        node_drag_handler(node)
+        
+        // add the text to the node
+        let node_text = d3.select('svg').append('text')
+            .attr('class','node-text')
+            .attr('x',x-5)
+            .attr('y',y+5)
+            .attr('id','n'+id+'-text')
+            .text(id)
+
+        // increment id for the next node to be added
+        global_id++
+      }
+
+      // function to remove things when we go out of focus
+      function remove_all_out_of_focus(){
+        d3.select('#node-text-input-container').remove()
+      }
+
+      window.onload = function(){
+        // set up the canvas
+        let canvas = d3.select('#main').append('svg').attr('width',width).attr('height',height)
+
+        add_markers(canvas)
+
+        canvas.on('click', function(){
+          let coords = d3.mouse(this)
+          if (d3.event.shiftKey){
+            draw_node(coords[0],coords[1],node_size)
+          }
+        })
+
+        
+
+        d3.select('#test').on('click',function(){
+          console.log('edge list:')
+          for (let key of edge_list.keys()){
+            console.log(key + ": " +  JSON.stringify(edge_list.get(key)))
+          }
+          console.log('node list:')
+          for (let key of node_list.keys()){
+            console.log(key + ": " +  JSON.stringify(node_list.get(key)))
+          }
+          console.log('adjancency list:')
+          for (let key of adj.keys()){
+            console.log(key + ": " +  [...adj.get(key)].join(' '))
+          }
+          console.log('reverse adj list:')
+          for (let key of rev_adj.keys()){
+            console.log(key + ": " +  [...rev_adj.get(key)].join(' '))
+          }
+        })
+      }
+
+      window.addEventListener('rename',function(e){
+        console.log(e.id)
+        node_list.get(e.id).text = e.value
+        d3.select('#n'+e.id+'-text').text(e.value)
+        d3.select('#node-text-input-container').remove()
+      })
+
+      // definition for the arrow markers to be attached to the lines (edges)
+      function add_markers(canvas){
+          // we're going to add a bunch of svg defs, each one of them correspond
+          // to a arrow type
+          let defs = canvas.append('defs')
+
+          // arrow marker for straight line
+          defs.append("marker")
+          .attr('id','arrow')
+          .attr('class','arrow')
+          .attr('markerWidth',10)
+          .attr('markerHeight',10)
+          .attr('refY',3)
+          .attr('refX',8)
+          .attr('orient','auto')
+          .append("path")
+          .attr('d','M0,0 L0,6 L9,3')
+
+          // arrow marker for straight line, when selected 
+          defs.append("marker")
+          .attr('id','arrow-selected')
+          .attr('class','arrow-selected')
+          .attr('markerWidth',10)
+          .attr('markerHeight',10)
+          .attr('refY',3)
+          .attr('refX',8)
+          .attr('orient','auto')
+          .append("path")
+          .attr('d','M0,0 L0,6 L9,3')
+      }
+
+    </script>
+  </body>
+</html>

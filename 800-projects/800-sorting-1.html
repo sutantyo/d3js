@@ -6,12 +6,12 @@
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
 
-    <link href="css/materialize.min.css" rel="stylesheet">
-    <script src="js/materialize.min.js"></script>
-    <script src="js/d3.min.js"></script>
+    <link href="../css/materialize.min.css" rel="stylesheet">
+    <script src="../js/materialize.min.js"></script>
+    <script src="../js/d3.min.js"></script>
     <!-- code highlighting -->
-    <link href="css/an-old-hope.css" rel="stylesheet">
-    <script src="js/highlight.pack.js"></script>
+    <link href="../css/an-old-hope.css" rel="stylesheet">
+    <script src="../js/highlight.pack.js"></script>
     <script> hljs.initHighlightingOnLoad();</script>
   </head>
 
@@ -38,19 +38,18 @@
   </body>
 
 
+
   <script type='text/javascript'>
 
 
 
       // generate an array of random integers
-      //dataset = Array.from({length: 16}, () => Math.floor(Math.random() * 100));
-      dataset = [5,50,20,10,5,10,50,100,5,20,20,10,50,20,5,10]
+      dataset = Array.from({length: 16}, () => Math.floor(Math.random() * 100));
 
       // set up the canvas
       let canvas = d3.select("#main").append('svg')
-        .style('width','100%')
-        .style('height','800px')
-
+        .attr('width','100%')
+        .attr('height','800px')
       d3.select('#main').style('width','80%').style('margin','auto');
 
       let y_offset = 480;
@@ -75,8 +74,8 @@
         .attr('r', radius)
         .style('fill', (d) => "rgb(" + (220-d/3*5) + "," + (200 - d/3) + "," + (235))
         .style('stroke','lightgrey')
-        .style('stroke-width','1px')
-        .style('opacity',0.9)
+        .style('stroke-width','1.0px')
+        .style('opacity',0.7)
       
       nodes.append('text')
         .attr('x', (d,i) => (i+1) * x_offset)
