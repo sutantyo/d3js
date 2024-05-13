@@ -5,5 +5,13 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
 	base: "/d3js/",
-	cors: true,
+	server: {
+		proxy: {
+			'/api': {
+				target: 'https://d3js-in-action-third-edition.github.io/',
+				changeOrigin: true,
+				rewrite: (path) => path.replace(/^\/api/,'')
+			}
+		}	
+	}
 })

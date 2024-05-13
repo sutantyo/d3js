@@ -12,7 +12,7 @@ function App() {
   const [data, setData] = useState([])
 
   useEffect( () => {
-    const dataURL = "http://d3js-in-action-third-edition.github.io/hosted-data/apis/front_end_frameworks.json";
+    const dataURL = "/api/hosted-data/apis/front_end_frameworks.json"
     d3.json(dataURL).then(data => {
       setData(data);
       setLoading(false);
